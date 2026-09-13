@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login \u2013 Vijayalakshmi Poultry Farm</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-shell">
+      <div class="login-illustration">
+        <div class="illustration-art" id="farm-art"></div>
+        <div class="illustration-copy">
+          <div class="illustration-logo" id="illustration-logo"></div>
+          <h2>Vijayalakshmi<br>Poultry Farm</h2>
+          <p>From farm to chicken centers</p>
+        </div>
+        <div class="feature-strip" id="feature-strip"></div>
+      </div>
+
+      <div class="login-card">
+        <div class="brand-mark">
+          <div class="emoji" id="login-logo" style="width:48px;height:48px;margin:0 auto;color:var(--amber-500);"></div>
+          <h1>Admin Console</h1>
+          <p>Sign in to manage the farm</p>
+        </div>
+        <div id="error-box"></div>
+        <form id="login-form">
+          <div class="field">
+            <label for="username">Username</label>
+            <input type="text" id="username" required autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn-primary" id="login-btn">Log In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/format.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/illustrations.js"></script>
+  <script src="js/feature-strip.js"></script>
+  <script>
+    document.getElementById('login-logo').innerHTML = Icons.logo;
+    document.getElementById('illustration-logo').innerHTML = Icons.logo;
+    document.getElementById('farm-art').innerHTML = Illustrations.farmScene;
+    renderFeatureStrip('feature-strip');
+
+    // If already logged in, skip straight to the dashboard.
+    Api.get('/api/auth/me').then(() => { window.location.href = 'pages/dashboard.html'; }).catch(() => {});
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const errorBox = document.getElementById('error-box');
+      errorBox.innerHTML = '';
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+      try {
+        await Api.post('/api/auth/login', {
+          username: document.getElementById('username').value.trim(),
+          password: document.getElementById('password').value,
+        });
+        window.location.href = 'pages/dashboard.html';
+      } catch (err) {
+        errorBox.innerHTML = `<div class="alert alert-error">${escapeHtml(err.message)}</div>`;
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+      }
+    });
+  </script>
+</body>
+</html>
